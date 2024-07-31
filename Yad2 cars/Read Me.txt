@@ -1,5 +1,0 @@
-# Name (שם מלא): Gal Davidi (גל דוידי)
-# ID (תעודת זהות): 206555112
-
-# Github link:
-# https://github.com/gdavidi/Projects/tree/main/Yad2%20cars
