@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <title>חיזוי מחיר רכב</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Heebo", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: url("https://images.unsplash.com/photo-1517433456452-f9633a875f6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDN8fGRhdGElMjBzY2llbmNlfGVufDB8fHx8MTY0MDU1ODQ0Nw&ixlib=rb-1.2.1&q=80&w=1080")
+          no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 20px;
+        height: 100vh;
+        overflow-y: auto;
+        color: #333;
+      }
+      .login {
+        width: 100%;
+        max-width: 800px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        box-sizing: border-box;
+      }
+      h1,
+      h2 {
+        align-self: center;
+        margin: 10px 0;
+        color: #333;
+      }
+      h2 {
+        margin-bottom: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        width: 100%;
+      }
+      label {
+        margin-bottom: 10px;
+        color: #555;
+        width: 100%;
+        text-align: right;
+      }
+      input,
+      textarea {
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 700px;
+        direction: rtl;
+        text-align: right;
+        font-size: 16px;
+        font-family: "Heebo", sans-serif;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background-color: #f9f9f9;
+      }
+      input:focus,
+      textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+        background-color: #fff;
+      }
+      textarea {
+        height: 150px;
+        resize: none;
+      }
+      button {
+        align-self: center;
+        padding: 15px 30px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+      button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      h3 {
+        color: #007bff;
+        text-align: center;
+        margin-top: 20px;
+        align-self: center;
+        width: 100%;
+      }
+      .error {
+        border-color: red;
+      }
+      .error-message {
+        color: red;
+        text-align: center;
+        display: none;
+      }
+      .prediction-text {
+        color: green;
+        display: none;
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login">
+      <h1>חיזוי מחיר הרכב</h1>
+      <h2>:הקלד נתונים נדרשים להערכת המחיר</h2>
+      <form
+        id="measurement-form"
+        action="{{ url_for('predict')}}"
+        method="post"
+        onsubmit="return validateForm()"
+      >
+        <label for="manufactor">:יצרן *</label>
+        <input type="text" id="manufactor" name="feature" required />
+        <label for="Year">(1980-2024) :שנה *</label>
+        <input
+          type="number"
+          id="Year"
+          name="feature"
+          min="1980"
+          max="2024"
+          required
+        />
+        <label for="model">:דגם *</label>
+        <input type="text" id="model" name="feature" required />
+        <label for="Hand">:יד *</label>
+        <input
+          type="number"
+          id="Hand"
+          name="feature"
+          min="1"
+          max="20"
+          required
+        />
+        <label for="Gear">:ת.הילוכים *</label>
+        <input type="text" id="Gear" name="feature" required />
+        <label for="capacity_Engine">:נפח *</label>
+        <input
+          type="number"
+          id="capacity_Engine"
+          name="feature"
+          min="0"
+          max="400000"
+          required
+        />
+        <label for="Engine_type">:סוג מנוע *</label>
+        <input type="text" id="Engine_type" name="feature" required />
+        <label for="Prev_ownership">:בעלות קודמת *</label>
+        <input type="text" id="Prev_ownership" name="feature" required />
+        <label for="Curr_ownership">:בעלות נוכחית</label>
+        <input type="text" id="Curr_ownership" name="feature" />
+        <label for="Area">:אזור</label>
+        <input type="text" id="Area" name="feature" />
+        <label for="City">:עיר</label>
+        <input type="text" id="City" name="feature" />
+        <label for="Pic_num">:מספר תמונות</label>
+        <input type="number" id="Pic_num" name="feature" min="0" />
+        <label for="Cre_date">(דוגמה: 11/07/2015) :תאריך יצירה</label>
+        <input
+          type="text"
+          id="Cre_date"
+          name="feature"
+          pattern="\d{2}/\d{2}/\d{4}"
+          placeholder="DD/MM/YYYY"
+        />
+        <label for="Repub_date">:תאריך הקפצה אחרון *</label>
+        <input
+          type="text"
+          id="Repub_date"
+          name="feature"
+          pattern="\d{2}/\d{2}/\d{4}"
+          placeholder="DD/MM/YYYY"
+          required
+        />
+        <label for="Description">:תיאור</label>
+        <textarea id="Description" name="feature"></textarea>
+        <label for="Color">:צבע</label>
+        <input type="text" id="Color" name="feature" />
+        <label for="Km">:ק"מ *</label>
+        <input type="number" id="Km" name="feature" min="0" required />
+        <label for="Test">:טסט עד</label>
+        <input
+          type="text"
+          id="Test"
+          name="feature"
+          pattern="\d{2}/\d{2}/\d{4}"
+          placeholder="DD/MM/YYYY"
+        />
+        <button type="submit" class="btn btn-primary px-5">הערך מחיר</button>
+      </form>
+      <h3 class="error-message" id="error-message">
+        לא מילאת את כל השדות הדרושים
+      </h3>
+      <h3 class="prediction-text" id="prediction-text">
+        {{ prediction_text }}
+      </h3>
+    </div>
+    <script>
+      // Function thats checks if the day, month, and year form a valid date (helper function for ValidateDateInput)
+      function isValidDate(day, month, year) {
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() + 1 === month &&
+          date.getDate() === day
+        );
+      }
+
+      // Function for validating the entire form before submission. It checks all input fields and text areas to ensure that required fields are not empty. It also handles the display of error messages if the validation fails
+      function validateForm() {
+        const form = document.getElementById("measurement-form"); // Get the form element
+        const inputs = form.querySelectorAll("input, textarea"); // Get all inputs and textareas in the form
+        let valid = true; // Assume the form is valid by default
+
+        inputs.forEach((input) => {
+          // Iterate over each input and validate it
+          if (input.value.trim() === "" && input.hasAttribute("required")) {
+            // Check if the input is empty and required
+            input.classList.add("error"); // If the input is empty and required, add the error class
+            valid = false;
+          } else {
+            // If the input is not empty, remove the error class
+            input.classList.remove("error");
+          }
+        }); // Iterate over each input and validate it
+
+        const errorMessage = document.getElementById("error-message"); // Get the error message element
+        const predictionText = document.getElementById("prediction-text"); // Get the prediction text element
+        if (!valid) {
+          // Check if the form is not valid
+          errorMessage.style.display = "block"; // Show the error message
+          predictionText.style.display = "none"; // Hide the prediction text
+        } else {
+          errorMessage.style.display = "none"; // Hide the error message
+        }
+
+        return valid; // Return the form validity status
+      }
+
+      // Ensure prediction text is shown only if there is a prediction
+      window.addEventListener("DOMContentLoaded", (event) => {
+        // Listen for the DOMContentLoaded event
+        const predictionText = document.getElementById("prediction-text"); // Get the prediction text element
+        if (predictionText.innerText.trim() !== "") {
+          // Check if the prediction text is not empty
+          predictionText.style.display = "block"; // Show the prediction text
+        } else {
+          predictionText.style.display = "none"; // Hide the prediction text by default
+        }
+      });
+
+      // Function for validating date input fields in real-time as the user types. It ensures that the date entered matches the required format and represents a valid date.
+      function validateDateInput(event) {
+        const input = event.target; // Get the input element
+        const dateParts = input.value.split("/"); // Split the date string into parts
+
+        if (dateParts.length === 3) {
+          // Check if the date format is valid
+          const day = parseInt(dateParts[0], 10); // Parse day, month, and year as integers
+          const month = parseInt(dateParts[1], 10); // Parse day, month, and year as integers
+          const year = parseInt(dateParts[2], 10); // Parse day, month, and year as integers
+
+          if (!isValidDate(day, month, year) || year > 2024) {
+            // Check if the date is valid
+            input.setCustomValidity(
+              // If the date format is invalid, set a custom validation message
+              " DD/MM/YYYY התאריך בפורמט לא תקין. נא להזין את התאריך בפורמט"
+            );
+          } else {
+            input.setCustomValidity(""); // Reset the custom validation message
+          }
+        } else {
+          input.setCustomValidity(
+            // If the date format is invalid, set a custom validation message
+            " DD/MM/YYYY התאריך בפורמט לא תקין. נא להזין את התאריך בפורמט"
+          );
+        }
+      }
+
+      // Attach input event listener to date fields
+      document
+        .querySelectorAll('input[pattern="\\d{2}/\\d{2}/\\d{4}"]') // Find all date inputs
+        .forEach((input) => {
+          // Iterate over each input
+          input.addEventListener("input", validateDateInput); // Attach input event listener
+        });
+    </script>
+  </body>
+</html>
